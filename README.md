@@ -28,7 +28,7 @@ Para instalar el servidor web, primero se actualizó el sistema y luego se insta
 
 ### 1.2 Verificación del Servicio y Puertos
 
-[cite_start]Se verificó el estado del servicio y el puerto de escucha por defecto[cite: 60, 61].
+Se verificó el estado del servicio y el puerto de escucha por defecto.
 
 1.  **Estado del Servicio:** Se utilizó el comando `sudo systemctl status apache2` para confirmar que el servicio está **`active (running)`**.
 2.  **Puerto de Escucha:** Se confirmó que el puerto de escucha por defecto es el **Puerto 80**, revisando el archivo de configuración **`/etc/apache2/ports.conf`**. El tráfico HTTPS se escucha en el puerto `443` si el módulo SSL está activo.
