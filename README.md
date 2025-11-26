@@ -1,65 +1,76 @@
-# 🌐 Servidor Web Apache en Linux: Configuración y Gestión
+# 🌐 Configuración y Gestión de un Servidor Web Apache en Debian
+
+Este documento resume la práctica académica sobre la instalación, configuración y gestión básica del servicio **Apache** en un entorno Linux Debian.
 
 ---
 
 ## 💡 Introducción y Objetivos
 
-Esta práctica ha permitido explorar en profundidad la **instalación, configuración y gestión de un servidor web Apache** en un entorno Debian.
+Esta práctica ha permitido explorar la instalación y configuración del servicio Apache en sistemas Debian. Los objetivos principales fueron:
 
-Los objetivos cubiertos incluyen:
 * Instalación y configuración del servicio Apache en sistemas Debian.
-* Análisis y edición de archivos de configuración principales (`apache2.conf`, `ports.conf`, `sites-available/`).
-* Personalización de páginas web básicas y gestión del archivo de inicio (`DirectoryIndex`).
-* Añadir y verificar el soporte de PHP a Apache.
-* Análisis de los módulos habilitados y su función.
+* Análisis de los archivos de configuración principales, como `apache2.conf` y `ports.conf`.
+* Personalización de páginas web básicas y gestión del archivo de inicio mediante la directiva `DirectoryIndex`.
+* Adición y verificación del soporte para **PHP** a Apache.
 
 ---
 
-## 1. Instalación y Verificación del Servicio
+## 1. Estructura y Componentes Principales
 
-### 1.1 Instalación de Apache
+La configuración de Apache se organiza en directorios específicos en el sistema.
 
-Para instalar el servidor web, primero se actualizó el sistema y luego se instaló el paquete `apache2`.
+### Tabla de Directorios Clave
 
-| Comando | Función |
+| Directorio | Descripción / Función principal |
 | :--- | :--- |
-| `sudo apt update` | Actualiza la lista de paquetes del sistema. |
-| `sudo apt install apache2` | Instala el servidor Apache2 y sus dependencias (`apache2-data`, `apache2-utils`). |
-
-### 1.2 Verificación del Servicio y Puertos
-
-Se verificó el estado del servicio y el puerto de escucha por defecto.
-
-1.  **Estado del Servicio:** Se utilizó el comando `sudo systemctl status apache2` para confirmar que el servicio está **`active (running)`**.
-2.  **Puerto de Escucha:** Se confirmó que el puerto de escucha por defecto es el **Puerto 80**, revisando el archivo de configuración **`/etc/apache2/ports.conf`**. El tráfico HTTPS se escucha en el puerto `443` si el módulo SSL está activo.
-
-### 1.3 Análisis del Archivo de Configuración Principal (`apache2.conf`)
-
-El archivo **`/etc/apache2/apache2.conf`** contiene la **configuración global y las directivas** que se aplican a todo el servidor Apache.Es crucial porque define configuraciones de seguridad, la ubicación de módulos, sitios web y registros de errores.
-
-* **Bloques `<Directory>`:** Definen permisos de acceso y opciones para directorios específicos (ej., `/var/www/`) para controlar cómo el servidor gestiona el contenido.
-* **Directivas `Include`:** Indican a Apache que incorpore configuraciones de otros archivos y directorios, como la configuración de módulos (`mods-enabled`) y la lista de puertos (`ports.conf`).
-* **Definición de Usuario/Grupo:** Establece el usuario y grupo con los que se ejecutarán los procesos de Apache (definidos en `/etc/apache2/envvars`), lo cual es crucial para la gestión de permisos y seguridad.
-* **Registro de Errores (`ErrorLog`):** Define la ubicación del archivo de registro de errores, que por defecto es `${APACHE_LOG_DIR}/error.log`.
+| **`/etc/apache2/`** | Directorio de configuración principal. Contiene todos los archivos de configuración. |
+| **`/etc/apache2/apache2.conf`** | Archivo de **configuración global**. Define configuraciones básicas y la ubicación de logs. |
+| **`/etc/apache2/ports.conf`** | Define los **puertos** en los que Apache escucha las peticiones. |
+| **`/etc/apache2/sites-available/`** | Contiene los archivos de configuración de todos los sitios web (`VirtualHosts`) creados. |
+| **`/etc/apache2/sites-enabled/`** | Contiene los enlaces simbólicos a los sitios que están actualmente activos. |
+| **`/var/www/html/`** | Ubicación por defecto del sitio web inicial (`DocumentRoot`). |
+| **`/var/log/apache2/`** | Contiene los archivos de registro (logs), como `access.log` y `error.log`. |
 
 ---
 
-## 2. Gestión del Sitio Web por Defecto
+## 2. Instalación y Verificación del Servicio
 
-### 2.1 Modificación del Sitio Web por Defecto
+### 2.1 Instalación y Estado
 
-Sí, es posible modificar el sitio por defecto editando el archivo de configuración **`000-default.conf`** ubicado en `/etc/apache2/sites-available/`.
+1.  **Instalación:** Se utilizó el comando `sudo apt install apache2` para instalar el servidor Apache2.
+2.  **Verificación:** El servicio se verificó como **`active (running)`** utilizando `sudo systemctl status apache2`.
+3.  **Puertos:** Se confirmó que el servidor escucha por defecto en el **Puerto 80** revisando el archivo `/etc/apache2/ports.conf`.
 
-La directiva **`DocumentRoot /var/www/html`** le indica a Apache la ubicación en el sistema de archivos (`/var/www/html/`) donde se encuentran los archivos públicos del sitio web que debe servir[cite: 163, 164, 171].
+### 2.2 Análisis de `apache2.conf`
 
-### 2.2 Personalización de la Página Principal
+* **Bloques `<Directory>`:** Definen permisos de acceso y opciones de configuración para directorios específicos.
+* **Directivas `Include`:** Indican a Apache que incorpore configuraciones de otros archivos, como la carga de módulos y `ports.conf`.
 
-1.  Se creó un nuevo fichero HTML (`hamza.html`) dentro del directorio `/var/www/html/`.
-2.  Para establecer `hamza.html` como la página principal al acceder a la web, se modificó el archivo **`000-default.conf`**.
-3.  Se añadió la directiva **`DirectoryIndex`** dentro del bloque `<Directory /var/www/html>`.
+---
 
-**Configuración Añadida:**
-```conf
-<Directory /var/www/html>
-    DirectoryIndex hamza.html index.html index.php
-</Directory>
+## 3. Gestión del Sitio Web por Defecto
+
+### 3.1 `DocumentRoot` y `DirectoryIndex`
+
+1.  **`DocumentRoot`:** La directiva `DocumentRoot /var/www/html` indica a Apache la ubicación raíz de los archivos públicos del sitio web.
+2.  **`DirectoryIndex`:** Para establecer un archivo personalizado (`hamza.html`) como página principal al acceder a `http://localhost/`, se utiliza la directiva **`DirectoryIndex`**.
+
+---
+
+## 4. Soporte PHP y Módulos
+
+### 4.1 Instalación e Integración de PHP
+
+1.  **Instalación:** Se instaló el intérprete de PHP y el módulo de Apache para procesar archivos `.php`.
+2.  **Verificación:** Se verificó que el módulo **`php_module (shared)`** estaba cargado en Apache usando `sudo apache2ctl -M`.
+
+### 4.2 Relación Apache y PHP
+
+* **Delegación:** Apache necesita delegar la interpretación del código PHP a un módulo externo, ya que el código PHP no es lenguaje nativo de Apache.
+* **Funcionamiento:** El módulo PHP actúa como intérprete; cuando Apache recibe un archivo `.php`, **delega la tarea de procesamiento** al módulo, el cual ejecuta el código y devuelve el resultado a Apache.
+
+---
+
+## 5. Comentarios
+
+Se documentó un problema de **caché del navegador (Firefox)**, que estaba almacenando una respuesta antigua. Para resolverlo, se utilizó un navegador diferente (Chrome) para forzar una nueva conexión limpia al servidor Apache, lo cual permitió la correcta ejecución de PHP y la verificación de la página `phpinfo`.
